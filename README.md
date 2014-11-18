@@ -1,7 +1,7 @@
 corMLPE
 =======
 
-This script containts construction functions of a corStruct class for the R package nlme, which are an implementation of Clarke's maximum likelihood population effects model. This is useful, ie. to construct regressions on distance matrices with nonlinearity and multiple random effects.
+This script containts constructor functions of a correlation structure for the R package nlme, which give an implementation of Clarke's maximum likelihood population effects model (Clarke et al. 2002). This is useful, ie. to construct regressions on distance matrices with nonlinearity and multiple random effects.
 
 The corStruct object allows a single grouping factor; for example among several species of an organism, we could fit an isolation-by-distance model with a syntax such as
 
@@ -13,5 +13,4 @@ Currently works with lme, nlme, gls, and gamm (from mgcv). The motivation for im
 
 Note that unlike the results presented in Clarke's paper, nlme/lme will return GLS standard errors rather than the OLS standard errors. If OLS standard errors are desired for some reason, see function MLPE() in the script.
 
-Reference:
 Clarke et al. 2002. Confidence Limits for Regression Relationships between Distance Matrices: Estimating Gene Flow with Distance. Journal of Agricultural, Biological, and Environmental Statistics 7: 361-372.
