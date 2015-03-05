@@ -1,8 +1,7 @@
 ############################
 ## corMLPE class for nlme ##
 ############################
-## Nate Pope -- npope@coa.edu
-## version Sept. 7 2014
+## version Feb. 15 2015
 
 #### EXAMPLE USE ##
 #
@@ -114,7 +113,7 @@ corMatrix.corMLPE <- function(object, Z = corZ(object), corr = TRUE, ...){ ## th
 		if(!corr){
 			z <- solve(t(chol(z))) ## this Cholesky solve is the bottleneck. Should outsource to C++ (or covert to sparseMatrix and use Matrix package)
 			}
-		return(z)
+		return(as.matrix(z))
 		})
 	if(!corr) {
 		lD <- unlist(lapply(out, function(z) sum(log(diag(z))) ))
