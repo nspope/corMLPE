@@ -1,16 +1,20 @@
 corMLPE
 =======
 
-This script containts constructor functions of a correlation structure for the R package nlme, which give an implementation of Clarke's maximum likelihood population effects model (Clarke et al. 2002). This is useful, ie. to construct regressions on distance matrices with nonlinearity and multiple random effects.
+This package implements a correlation structure for the R package `nlme` for Clarke's maximum likelihood population effects model (Clarke et al. 2002). This is useful, e.g. to construct regressions on distance matrices with nonlinearity and multiple random effects. Essentially, this is a model for symmetric, relation data.
 
-The corStruct object allows a single grouping factor; for example among several species of an organism, we could fit an isolation-by-distance model with a syntax such as
+The `corStruct` object allows a single grouping factor; for example among several species of an organism, we could fit an isolation-by-distance model with a syntax such as
 
-lme(genetic.distance ~ geographic.distance, random = ~geographic.distance|species, correlation=corMLPE(form=~popid1+popid2|species), data=my.data)
+```{r}
+lme(genetic.distance ~ geographic.distance, random = ~geographic.distance|species, 
+    correlation=corMLPE(form=~pop1+pop2|species), data=my.data)
+```{r}
 
-In this case "popid1" and "popid2" are numerical labels for the populations, such that each observation corresponds to a pair of populations.
+In this case `pop1` and `pop2` are numerical labels for the populations, such that each observation corresponds to a pair of populations.
 
-Currently works with lme, nlme, gls, and gamm (from mgcv). The motivation for implementing in nlme was to allow compatibility with nonlinear models, heteroskedasticity, and additive models.
+Currently works with `lme`, `nlme`, `gls`, and `gamm` (from package `mgcv`). The motivation for implementing this model in `nlme` was to leverage pre-existing machinery for nonlinear models, heteroskedasticity, and additive models.
 
-Note that unlike the results presented in Clarke's paper, nlme/lme will return GLS standard errors rather than the OLS standard errors. If OLS standard errors are desired for some reason, see function MLPE() in the script.
+Note that unlike the results presented in Clarke's paper, `nlme`/`lme` will return GLS standard errors rather than the `OLS` standard errors. If OLS standard errors are desired for some reason, see function `MLPE()` in the package.
 
+# References
 Clarke et al. 2002. Confidence Limits for Regression Relationships between Distance Matrices: Estimating Gene Flow with Distance. Journal of Agricultural, Biological, and Environmental Statistics 7: 361-372.
