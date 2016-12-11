@@ -8,11 +8,11 @@ The `corStruct` object allows a single grouping factor; for example among severa
 ```{r}
 lme(genetic.distance ~ geographic.distance, random = ~geographic.distance|species, 
     correlation=corMLPE(form=~pop1+pop2|species), data=my.data)
-```{r}
+```
 
 In this case `pop1` and `pop2` are numerical labels for the populations, such that each observation corresponds to a pair of populations.
 
-Currently works with `lme`, `nlme`, `gls`, and `gamm` (from package `mgcv`). The motivation for implementing this model in `nlme` was to leverage pre-existing machinery for nonlinear models, heteroskedasticity, and additive models.
+The package currently interfaces with `lme`, `nlme`, `gls`, and `gamm` (from package `mgcv`). The motivation for implementing this model in `nlme` was to leverage pre-existing machinery for nonlinear models, heteroskedasticity, and additive models. Look at Bill Peterman's package `ResistanceGA`[https://github.com/wpeterman/ResistanceGA] for a nice, `lme4`-based implementation.
 
 Note that unlike the results presented in Clarke's paper, `nlme`/`lme` will return GLS standard errors rather than the `OLS` standard errors. If OLS standard errors are desired for some reason, see function `MLPE()` in the package.
 
