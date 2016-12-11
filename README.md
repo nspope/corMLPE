@@ -9,6 +9,8 @@ Initially, this was a rough script created for a single application. I've since 
 devtools:::install_github("nspope", "corMLPE")
 ```
 
+**An important current limitation** is that the model assumes a complete set of pairwise distances; i.e. all possible pairwise combinations among samples. This assumption is necessary for fast computation of the likelihood, which relies on closed form for the spectrum of the model's correlation matrix. I'm currently working on relaxing this assumption.
+
 The `corStruct` object allows a single grouping factor; for example among several species of an organism, we could fit an isolation-by-distance model with a syntax such as
 
 ```{r}
