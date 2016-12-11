@@ -1,9 +1,9 @@
 #' Correlation structure for symmetric relational data
 #'
 #' @param value Starting value for the correlation parameter
-#' @param form A formula in the form ...
-#' @param fixed Logical, fit model with starting value fixed
-#' @param covariate Optional, supply a covariate
+#' @param form A formula that gives indicators for each side of the pairwise comparison, and optionally a grouping factor. See 'Details'.
+#' @param fixed Optional. Logical, fit model with the starting value for the correlation parameter fixed
+#' @param covariate Optional, supply a covariate (see 'Details')
 #' @export
 corMLPE <- function(value = 0.1, form = ~1, fixed = FALSE, covariate = NULL){
 	if(value >= 0.5 | value <= 0)
