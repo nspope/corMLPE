@@ -1,7 +1,13 @@
 corMLPE
 =======
 
-This package implements a correlation structure for the R package `nlme` for Clarke's maximum likelihood population effects model (Clarke et al. 2002). This is useful, e.g. to construct regressions on distance matrices with nonlinearity and multiple random effects. Essentially, this is a model for symmetric, relation data.
+This package implements a correlation structure for the R package `nlme` for Clarke's maximum likelihood population effects model (Clarke et al. 2002). This is useful, e.g. to construct regressions on distance matrices with nonlinearity and multiple random effects. More generally, this is a model for symmetric, relational data where the row and column effects are random and are integrated from the likelihood.
+
+Initially, this was a rough script created for a single application. I've since ported the computationally intensive part of the code to C++, extended it for 'larger' datasets, and packaged it for a smoother installation. The easiest installation is via the package `devtools`;
+
+```{r}
+devtools:::install_github("nspope", "corMLPE")
+```
 
 The `corStruct` object allows a single grouping factor; for example among several species of an organism, we could fit an isolation-by-distance model with a syntax such as
 
