@@ -1,0 +1,17 @@
+Package: corMLPE
+Title: What the Package Does (one line, title case)
+Version: 0.0.0.9000
+Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+Imports:
+    Rcpp (>= 0.12.7),
+    nlme,
+    MASS
+Depends:
+    nlme,
+    MASS
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 5.0.1
