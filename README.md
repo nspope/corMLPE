@@ -6,7 +6,7 @@ This package implements a correlation structure for the R package `nlme` for Cla
 Initially, this was a rough script created for a single application. I've since ported the computationally intensive part of the code to C++, extended it for 'larger' datasets, and packaged it for a smoother installation. The easiest installation is via the package `devtools`;
 
 ```{r}
-devtools:::install_github("nspope", "corMLPE")
+devtools:::install_github("nspope/corMLPE")
 ```
 
 **An important current limitation** is that the model assumes a complete set of pairwise distances; i.e. all possible pairwise combinations among samples. This assumption is necessary for fast computation of the likelihood, which relies on closed form for the spectrum of the model's correlation matrix. I'm currently working on relaxing this assumption.
