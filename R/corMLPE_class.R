@@ -187,7 +187,7 @@ corMatrix.corMLPE <- function(object, full=FALSE, ...){
 recalc.corMLPE <- function(object, conLin, ...){
 	## need to order colLin by permutation, then unorder
 	permutation <- getCovariate(object) # probably more efficient way to do this
-	conLin[["Xy"]][permutation[[2]],] <- MultLambdaGroups(conLin[["Xy"]][permutation[[1]],], attr(spectrum(object), "inverse"), Dim(object)$len, attr(pattern(object), "elements") )
+	conLin[["Xy"]][permutation[[2]],] <- MultLambdaGroups(as.matrix(conLin[["Xy"]][permutation[[1]],]), attr(spectrum(object), "inverse"), Dim(object)$len, attr(pattern(object), "elements") )
 	conLin[["logLik"]] <- conLin[["logLik"]] + logLik(object)
 	return(conLin)
 }
