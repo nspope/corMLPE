@@ -70,13 +70,20 @@ getCovariate.corMLPE <- function(object, data){
 			stop("in at least one group, pairwise comparisons are duplicated")
 
 		# TODO: check for complete set of pairwise comparisons
-    np <- length(unique(as.vector(aux)))
-    np <- np*(np-1)/2
-    if( nrow(aux) != np )
-      stop("currently, data must contain a complete set of pairwise comparisons.
-           If you don't need the capacity to handle large sample sizes, consider using
-           the old (unsupported) script, which doesn't suffer from this problem.
-           Found at:\n\tgithub.com/nspope/corMLPE_unsupported/\n")
+    for(i in groups)
+    {
+      np <- length(unique(as.vector(aux[groups==i,])))
+      np <- np*(np-1)/2
+      problem <- paste0("group ", i, " has ", nrow(aux[groups==i,]), " pairwise comparisons.")
+      if( nrow(aux[groups==i,]) != np )
+      {
+        cat(problem, "\n")
+        stop("currently, data must contain a complete set of pairwise comparisons.
+             If you don't need the capacity to handle large sample sizes, consider using
+             the old (unsupported) script, which doesn't suffer from this problem.
+             Found at:\n\tgithub.com/nspope/corMLPE_unsupported/\n")
+      }
+    }
 
 		permutation <- order(groups, aux[,1], aux[,2])
 		invpermutation <- (1:length(permutation))[permutation]
