@@ -70,7 +70,7 @@ getCovariate.corMLPE <- function(object, data){
 			stop("in at least one group, pairwise comparisons are duplicated")
 
 		# TODO: check for complete set of pairwise comparisons
-    for(i in groups)
+    for(i in unique(groups))
     {
       np <- length(unique(as.vector(aux[groups==i,])))
       np <- np*(np-1)/2
