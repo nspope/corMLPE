@@ -22,6 +22,12 @@ lme(genetic.distance ~ geographic.distance, random = ~geographic.distance|specie
 
 In this case `pop1` and `pop2` are numerical labels for the populations, such that each observation corresponds to a pair of populations.
 
+With only a single species, use `gls`,
+
+```{r}
+gls(genetic.distance ~ geographic.distance, correlation=corMLPE(form=~pop1+pop2), data=my.data)
+```
+
 The package currently interfaces with `lme`, `nlme`, `gls`, and `gamm` (from package `mgcv`). The motivation for implementing this model in `nlme` was to leverage pre-existing machinery for nonlinear models, heteroskedasticity, and additive models. Look at Bill Peterman's package `ResistanceGA`[https://github.com/wpeterman/ResistanceGA] for a nice, `lme4`-based implementation.
 
 Note that unlike the results presented in Clarke's paper, `nlme`/`lme` will return GLS standard errors rather than the OLS standard errors. If OLS standard errors are desired for some reason, see function `MLPE()` in the package.
