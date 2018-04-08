@@ -6,186 +6,42 @@
 
 using namespace Rcpp;
 
-// MultLambda
-arma::vec MultLambda(arma::vec x, arma::vec v, arma::uword p);
-RcppExport SEXP corMLPE_MultLambda(SEXP xSEXP, SEXP vSEXP, SEXP pSEXP) {
+// recalc
+arma::mat recalc(const arma::umat& labels, const arma::uword nodes, const arma::mat& P, const arma::vec& D, arma::mat input, const double rho);
+RcppExport SEXP _corMLPE_recalc(SEXP labelsSEXP, SEXP nodesSEXP, SEXP PSEXP, SEXP DSEXP, SEXP inputSEXP, SEXP rhoSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type v(vSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(MultLambda(x, v, p));
+    Rcpp::traits::input_parameter< const arma::umat& >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type D(DSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type input(inputSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    rcpp_result_gen = Rcpp::wrap(recalc(labels, nodes, P, D, input, rho));
     return rcpp_result_gen;
 END_RCPP
 }
-// MultLambdaTrio
-arma::vec MultLambdaTrio(const arma::vec& x, const arma::vec& v);
-RcppExport SEXP corMLPE_MultLambdaTrio(SEXP xSEXP, SEXP vSEXP) {
+// adjacency
+arma::mat adjacency(const arma::umat& labels, const arma::uword nodes);
+RcppExport SEXP _corMLPE_adjacency(SEXP labelsSEXP, SEXP nodesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(MultLambdaTrio(x, v));
+    Rcpp::traits::input_parameter< const arma::umat& >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type nodes(nodesSEXP);
+    rcpp_result_gen = Rcpp::wrap(adjacency(labels, nodes));
     return rcpp_result_gen;
 END_RCPP
 }
-// MultLambdaGroups
-arma::mat MultLambdaGroups(arma::mat x, arma::mat v, arma::uvec n, arma::uvec p);
-RcppExport SEXP corMLPE_MultLambdaGroups(SEXP xSEXP, SEXP vSEXP, SEXP nSEXP, SEXP pSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type v(vSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type n(nSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(MultLambdaGroups(x, v, n, p));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigenVals
-arma::vec eigenVals(double tau, arma::uword n);
-RcppExport SEXP corMLPE_eigenVals(SEXP tauSEXP, SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigenVals(tau, n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigenVecs
-arma::mat eigenVecs(arma::uword n);
-RcppExport SEXP corMLPE_eigenVecs(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigenVecs(n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigenCount
-arma::uvec eigenCount(arma::uword n);
-RcppExport SEXP corMLPE_eigenCount(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigenCount(n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// matrixCount
-arma::uvec matrixCount(arma::uword n);
-RcppExport SEXP corMLPE_matrixCount(SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(matrixCount(n));
-    return rcpp_result_gen;
-END_RCPP
-}
-// matrixVals
-arma::vec matrixVals(arma::vec lambda, arma::mat e);
-RcppExport SEXP corMLPE_matrixVals(SEXP lambdaSEXP, SEXP eSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(matrixVals(lambda, e));
-    return rcpp_result_gen;
-END_RCPP
-}
-// likelihood
-double likelihood(arma::vec v, arma::uvec cnt, arma::vec l, arma::uvec lcnt, arma::vec x, arma::vec y, arma::uword p, double sigma);
-RcppExport SEXP corMLPE_likelihood(SEXP vSEXP, SEXP cntSEXP, SEXP lSEXP, SEXP lcntSEXP, SEXP xSEXP, SEXP ySEXP, SEXP pSEXP, SEXP sigmaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type v(vSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type cnt(cntSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type l(lSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type lcnt(lcntSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type p(pSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(likelihood(v, cnt, l, lcnt, x, y, p, sigma));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sampleTauSigma
-arma::vec sampleTauSigma(arma::vec lltausig, arma::uword iter, double tune, arma::mat e, arma::uvec cnt, arma::uvec lcnt, arma::vec x, arma::vec y, arma::uword p);
-RcppExport SEXP corMLPE_sampleTauSigma(SEXP lltausigSEXP, SEXP iterSEXP, SEXP tuneSEXP, SEXP eSEXP, SEXP cntSEXP, SEXP lcntSEXP, SEXP xSEXP, SEXP ySEXP, SEXP pSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type lltausig(lltausigSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type iter(iterSEXP);
-    Rcpp::traits::input_parameter< double >::type tune(tuneSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type e(eSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type cnt(cntSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type lcnt(lcntSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(sampleTauSigma(lltausig, iter, tune, e, cnt, lcnt, x, y, p));
-    return rcpp_result_gen;
-END_RCPP
-}
-// build_index
-arma::ivec build_index(int nr, int nc);
-RcppExport SEXP corMLPE_build_index(SEXP nrSEXP, SEXP ncSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nr(nrSEXP);
-    Rcpp::traits::input_parameter< int >::type nc(ncSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_index(nr, nc));
-    return rcpp_result_gen;
-END_RCPP
-}
-// build_pointer
-arma::ivec build_pointer(int nr, int nc);
-RcppExport SEXP corMLPE_build_pointer(SEXP nrSEXP, SEXP ncSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nr(nrSEXP);
-    Rcpp::traits::input_parameter< int >::type nc(ncSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_pointer(nr, nc));
-    return rcpp_result_gen;
-END_RCPP
-}
-// fill_values
-arma::vec fill_values(int nr, int nc, arma::ivec ind, arma::ivec p, arma::vec R);
-RcppExport SEXP corMLPE_fill_values(SEXP nrSEXP, SEXP ncSEXP, SEXP indSEXP, SEXP pSEXP, SEXP RSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nr(nrSEXP);
-    Rcpp::traits::input_parameter< int >::type nc(ncSEXP);
-    Rcpp::traits::input_parameter< arma::ivec >::type ind(indSEXP);
-    Rcpp::traits::input_parameter< arma::ivec >::type p(pSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type R(RSEXP);
-    rcpp_result_gen = Rcpp::wrap(fill_values(nr, nc, ind, p, R));
-    return rcpp_result_gen;
-END_RCPP
-}
-// all_pairs
-arma::umat all_pairs(arma::uword p);
-RcppExport SEXP corMLPE_all_pairs(SEXP pSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uword >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(all_pairs(p));
-    return rcpp_result_gen;
-END_RCPP
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_corMLPE_recalc", (DL_FUNC) &_corMLPE_recalc, 6},
+    {"_corMLPE_adjacency", (DL_FUNC) &_corMLPE_adjacency, 2},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_corMLPE(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

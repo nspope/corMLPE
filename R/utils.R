@@ -18,7 +18,7 @@ genTestData <- function(M = 20, lambda = 10, beta = 0.5, rho = 0.25, sigma = 2, 
 				P[j,k] <- P[k,j] <- any(comb[,j] %in% comb[,k]) * rho
 				}
 			}
-		y[[i]] <- mvrnorm(1, dd*beta + eta[i] + dd*theta[i], sigma*P)
+		y[[i]] <- MASS::mvrnorm(1, dd*beta + eta[i] + dd*theta[i], sigma*P)
 		covariate[[i]] <- data.frame(t(comb))
 		spm[[i]] <- rep(i, ncol(comb))
 		distz[[i]] <- dd
@@ -44,7 +44,7 @@ genTestData <- function(M = 20, lambda = 10, beta = 0.5, rho = 0.25, sigma = 2, 
 ClarkeLL <- function(par, V, A, y){
 	## REML formula given in Clarke et al. 2002
 	sigma <- par[1]
-	rho <- rMLPEtrans(par[2]) # transform from unconstrained to constrained [-0.5, 0.5] form
+	rho <- .rMLPEtrans(par[2]) # transform from unconstrained to constrained [-0.5, 0.5] form
 	w <- nrow(V)
 	V <- V*rho
 	diag(V) <- 1
@@ -55,7 +55,7 @@ ClarkeLL <- function(par, V, A, y){
 	}
 
 BLUE <- function(Sol, V, y, A, pop1, pop2){
-	rho <- rMLPEtrans(Sol$par[2])
+	rho <- .rMLPEtrans(Sol$par[2])
 	sigma <- Sol$par[1]
 	st <- sigma*rho
 	se <- sigma - 2*st
@@ -78,7 +78,7 @@ MLPE <- function(y, X, V, pop1, pop2){
 	A <- X 
 	Sol <- optim(c(1, 0), ClarkeLL, V = V, A = A, y = y, hessian = T)
 	Est <- BLUE(Sol, V, y, A, pop1, pop2)
-	VC <- c(sigma_e = Sol$par[1], rho = rMLPEtrans(Sol$par[2]), sigma_t = Sol$par[1] * rMLPEtrans(Sol$par[2]) )
+	VC <- c(sigma_e = Sol$par[1], rho = .rMLPEtrans(Sol$par[2]), sigma_t = Sol$par[1] * .rMLPEtrans(Sol$par[2]) )
 	out <- list(BLUE=Est, VC=VC, Sol=Sol)
 	class(out) <- "MLPE"
 	return(out)

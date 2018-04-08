@@ -1,10 +1,6 @@
-#' @import RcppArmadillo
 #' @import nlme
-#' @import MASS
+#' @import Matrix
 #' @useDynLib corMLPE
+#' @importFrom Rcpp sourceCpp
 NULL
-
-.onUnload <- function (libpath) {
-  library.dynam.unload("corMLPE", libpath)
-}
 

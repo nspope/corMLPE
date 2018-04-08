@@ -1,98 +1,106 @@
 #' Correlation structure for symmetric relational data
 #'
 #' @param value Starting value for the correlation parameter
-#' @param form A formula that gives indicators for each side of the pairwise comparison, and optionally a grouping factor. See 'Details'.
+#' @param form A formula including two variables that give the unordered pair of elements associated with each observation, and optionally a grouping factor that indicates the set to which the elements belong. See 'Details'.
 #' @param fixed Optional. Logical, fit model with the starting value for the correlation parameter fixed
-#' @param covariate Optional, supply a covariate (see 'Details')
+#' @details "Maximum likelihood population effects" (MLPE) is a correlation structure for dyadic, symmetric relational data: where each observation is a measurement for an unordered pair of elements from a set. For two (different) elements $i,j$, let \eqn{E[y_{i,j}]} be the expectation of the response variable (perhaps conditional on some random effects), and \deqn{y_{i,j} = E[y_{i,j}] + \alpha_{i} + \alpha_{j} + \epsilon_{i,j},} where \eqn{\alpha} are associated with unique elements of the set and are i.i.d zero-mean Gaussian random variables with standard deviation \eqn{\tau}; and \eqn{\epsilon} are i.i.d Gaussian errors with standard deviation \eqn{\sigma}. Marginally (after integrating out \eqn{\alpha}), the covariance between two observations \eqn{y_{i,j}} and \eqn{y_{k,l}} is \deqn{cov(y_{i,j}, y_{k,l}) = .} The corresponding correlation structure has a single parameter, \eqn{\rho = .} which is constrained to lie between 0 and 0.5.
+#'
+#' The "form" argument of a corMLPE object must contain two variables that indicate the pair of elements associated with each observation, and can optionally contain a grouping factor that indicates the set to which the elements belong. Elements from different sets are treated as distinct even if they have the same label, and thus there is always a zero correlation between measurements across different sets. 
+#'
+#' For example, if "data.frame(elem1 = c(1,1,2), elem2 = c(2,3,4), grp = c(1,1,2))" were used as data with "form=~elem1 + elem2 | grp", then the first two observations would be correlated (because they are from the same group and share the element "1"), but would both be uncorrelated with the third observation (as the third observation is associated with the second set, despite involving an element "2" that is labelled identically to an element from the first set). The ordering within a pair does not matter. Multiple observations of the same pair of elements are allowed, as are missing combinations of pairs, but "self" comparisons are not (where both elements of a pair are the same).
+#'
+#' It is important to note that this correlation structure does not directly incorporate a (dis)similarity metric (which could instead be included as a covariate in the regression model), but instead tries to account for the dependence between pairwise measurements taken between the same objects.
+#'
+#' @references Clarke et al. 2003 ... TODO
+#' @examples #placeholder ... TODO
 #' @export
-corMLPE <- function(value = 0.1, form = ~1, fixed = FALSE, covariate = NULL){
+corMLPE <- function(value = 0.1, form = ~1, fixed = FALSE){
 	if(value >= 0.5 | value <= 0)
 		stop("parameter must be between 0 and 0.5")
-	value <- MLPEtrans(value)
+
+	value                  <- .MLPEtrans(value)
 	attr(value, "formula") <- form
-	attr(value, "fixed") <- fixed
-	if( !is.null(covariate) )
-	    attr(value, "covariate") <- covariate
-	class(value) <- c("corMLPE", "corStruct")
+	attr(value, "fixed")   <- fixed
+	class(value)           <- c("corMLPE", "corStruct")
+
 	value
 }
 
 #' @export
-Initialize.corMLPE <-  function (object, data, ...){
+Initialize.corMLPE <- function (object, data, ...){
 	form <- formula(object)
-	if (!is.null(getGroupsFormula(form))) {
-		attr(object, "groups") <- getGroups(object, form, data = data)
-		attr(object, "Dim") <- Dim(object, attr(object, "groups"))
-	} else {
-		attr(object, "Dim") <- Dim(object, as.factor(rep(1, nrow(data))))
+
+	if (!is.null(getGroupsFormula(form))) 
+  {
+		attr(object, "groups")  <- getGroups(object, form, data = data)
+		attr(object, "Dim")     <- Dim(object, attr(object, "groups"))
+	} 
+  else 
+  {
+		attr(object, "Dim")     <- Dim(object, as.factor(rep(1, nrow(data))))
 	}
 	attr(object, "covariate") <- getCovariate(object, data = data)
-	attr(object, "pattern") <- pattern(object)
-	return(object)
+
+	object
 }
 
 #' @export
 Dim.corMLPE <- function(object, groups, ...){
 	if(missing(groups))
 		return(attr(object, "Dim"))
-	ugrp <- unique(groups)
+
+	ugrp   <- unique(groups)
 	groups <- factor(groups, levels = ugrp)
-	len <- table(groups)
-	list(N = length(groups), M = length(len), maxLen = max(len), sunLenSq = 0, len = len, start = match(ugrp,groups) - 1L) 
+	len    <- table(groups)
+
+	list(N        = length(groups), 
+       M        = length(len), 
+       maxLen   = max(len), 
+       sumLenSq = 0, 
+       len      = len, 
+       start    = match(ugrp,groups) - 1L) 
 }
 
 #' @export
 getCovariate.corMLPE <- function(object, data){
-	if( !is.null( aux <- attr(object, "covariate") ) ){
-		return( aux )
-	} else {
-		formulator = formula(object)
-		covariateFormula <- getCovariateFormula(formulator)
-		if ( !is.null(getGroupsFormula(formulator) )) {
+	if(!is.null( aux <- attr(object, "covariate")))
+  {
+		return (aux)
+	} 
+  else 
+  {
+		formulator       <- formula(object)
+		if (!is.null(getGroupsFormula(formulator))) 
 			groups <- getGroups(object, data = data)
-	        } else {
-			groups <- rep(1, nrow(data))
-		}
-		covariateTerms <- attr(terms(covariateFormula), "term.labels")
-
+    else 
+			groups <- as.factor(rep(1, nrow(data)))
+#    groups         <- getGroups(object)#TODO
+		covariateTerms <- attr(terms(getCovariateFormula(formula(object))), "term.labels")
 		if(length(covariateTerms) != 2)
-			stop("must include two variables that indicate the pairwise comparisons on left side of formula")
+			stop("'form' must include two factors that indicate the members of the pair for each observation.")
 
-		aux <- cbind(paste0(groups, "_", as.character(data[[covariateTerms[1]]])), paste0(groups, "_", as.character(data[[covariateTerms[2]]]) ) )
-		uniqueLabels <- unique(as.vector(aux)) 
-		for(i in 1:2)
-			aux[,i] <- match(aux[,i], uniqueLabels)
-		
-		aux <- t(apply(aux, 1, function(x) x[order(x)]))
+    # unique group labels
+    labels  <- cbind(paste(groups, as.character(data[,covariateTerms[1]]), sep="_"),
+                     paste(groups, as.character(data[,covariateTerms[2]]), sep="_"))
+    ulabels <- unique(as.vector(labels))
+    labels  <- rbind(match(labels[,1], ulabels)-1,
+                     match(labels[,2], ulabels)-1)
 
-		# check for duplicates
-		if( anyDuplicated(aux) )
-			stop("in at least one group, pairwise comparisons are duplicated")
+    if (any(labels[1,]==labels[2,]))
+      stop("Measurements that are self-comparisons are not allowed")
 
-		# TODO: check for complete set of pairwise comparisons
-    for(i in unique(groups))
-    {
-      np <- length(unique(as.vector(aux[groups==i,])))
-      np <- np*(np-1)/2
-      problem <- paste0("group ", i, " has ", nrow(aux[groups==i,]), " pairwise comparisons.")
-      if( nrow(aux[groups==i,]) != np )
-      {
-        cat(problem, "\n")
-        stop("currently, data must contain a complete set of pairwise comparisons.
-             If you don't need the capacity to handle large sample sizes, consider using
-             the old (unsupported) script, which doesn't suffer from this problem.
-             Found at:\n\tgithub.com/nspope/corMLPE_unsupported/\n")
-      }
-    }
+    nodes        <- length(ulabels)
+    observations <- ncol(labels)
 
-		permutation <- order(groups, aux[,1], aux[,2])
-		invpermutation <- (1:length(permutation))[permutation]
+    # adjacency matrix
+    adj     <- eigen(.getCovariate_cpp(labels, nodes))
 
-		aux <- list(permutation=permutation, invpermutation=invpermutation)
-
-		
-		return(aux)
-	}
+    return (list(adj=adj,
+                 nodes=nodes,
+                 observations=observations,
+                 groups=groups,
+                 labels=labels))
+  }
 }
 
 #' @export
@@ -106,8 +114,8 @@ coef.corMLPE <- function (object, unconstrained = TRUE, ...) {
         }
     } 
     aux <- as.vector(object)
-    aux <- rMLPEtrans(aux)
-    names(aux) <- "Rho"
+    aux <- .rMLPEtrans(aux)
+    names(aux) <- "rho"
     aux 
 }
 
@@ -116,93 +124,54 @@ coef.corMLPE <- function (object, unconstrained = TRUE, ...) {
 	if (length(value) != length(object)) {
 		stop("cannot change the length of the parameter of a \"corMLPE\" object")
 	}
-	object[] <- value
-	attr(object, "spectrum") <- NULL
-	attr(object, "spectrum") <- spectrum(object)
-	attr(object, "logDet") <- NULL
+	object[]               <- value
 	attr(object, "logDet") <- logDet(object)
-	# update anything related to coefficient here, like Cholesky factor, log determinant
 	return(object)
 }
 
 #' @export
 as.matrix.corMLPE <- function(object, ...){
-	corMatrix(object, full = TRUE)
-}
-
-#' @export
-pattern <- function(object, ...){
-	UseMethod("pattern")
-}
-
-#' @export
-pattern.corMLPE <- function(object, ...){
-	if( !is.null( aux <- attr(object, "pattern") ) ) {
-		return(aux)
-	} else {
-		aux <- lapply( as.list(Dim(object)$len), function(n){
-			p <- sqrt(1 + 8*n)/2 + 0.5
-			if(p>3){
-				lcnt <- eigenCount(p)
-				cnt <- matrixCount(p)
-				evec <- eigenVecs(p)
-			} else {
-				evec <- lcnt <- cnt <- NULL
-			}
-			list(lcnt=lcnt, cnt=cnt, evec=evec, p=p)
-		})
-		attr(aux, "elements") <- sapply(aux, function(x) x$p)
-		return(aux)
-	}
-}
-
-#' @export
-spectrum <- function(object, ...){
-	UseMethod("spectrum")
-}
-
-#' @export
-spectrum.corMLPE <- function(object, ...){
-	if( !is.null(aux <- attr(object, "spectrum")) ){
-		return(aux)
-	} else {
-		rho <- rMLPEtrans(as.vector(object))
-		# loop over groups 
-		aux <- lapply( pattern(object), function(group){
-			if(group$p > 3){
-				lam <- sqrt( eigenVals(rho, group$p) )
-				vals <- matrixVals(lam, group$evec)
-				ld <- -sum( group$lcnt * log(lam) )
-			} else {
-				lam <- sqrt( c(1-rho, 1+rho*2) )
-				vals <- c( NaN, 1/(3*lam[2])-1/(3*lam[1]), 1/(3*lam[2])+2/(3*lam[1]) )
-				ld <- -sum( 2*log(lam[1]) + log(lam[2]) )
-			}
-			list(ld=ld, lam=lam, vals=vals)
-		})
-		attr(aux, "inverse") <- Reduce(cbind, lapply(aux, function(x) x$vals))
-		attr(aux, "logDet") <- sum(sapply(aux, function(x) x$ld ))
-		return(aux)
-	}
+	corMatrix(object, full=TRUE)
 }
 
 #' @export
 corFactor.corMLPE <- function(object, ...){
-	## should complain!
-	stop("Cholesky factor is not calculated for this corStruct class")
+	stop("The square-root factor is not explicitly formed for this this corStruct class.")
 }
 
 #' @export
 corMatrix.corMLPE <- function(object, full=FALSE, ...){
-	## should construct sparse matrix
-	stop("Not currently implemented, matrix never formed explicitly")
+  # TODO: this wouldn't return the correct matrix if self-observations are allowed
+  covariate  <- getCovariate(object)
+  rho        <- coef(object, unconstrained=FALSE)
+  i          <- as.vector(covariate[["labels"]])+1
+  j          <- rep(1:covariate[["observations"]], each=2)
+  Zt         <- sparseMatrix(i=i, j=j, x=1)
+  corr       <- t(Zt) %*% Zt * rho
+  diag(corr) <- 1
+
+  if (full)
+    return (corr)
+  else
+  {
+    corrl <- list()
+    groups <- covariate[["groups"]]
+    for (gr in unique(groups))
+      corrl[[gr]] <- corr[groups==gr,groups==gr]
+    return (corrl)
+  }
 }
 
 #' @export
 recalc.corMLPE <- function(object, conLin, ...){
-	## need to order colLin by permutation, then unorder
-	permutation <- getCovariate(object) # probably more efficient way to do this
-	conLin[["Xy"]][permutation[[2]],] <- MultLambdaGroups(as.matrix(conLin[["Xy"]][permutation[[1]],]), attr(spectrum(object), "inverse"), Dim(object)$len, attr(pattern(object), "elements") )
+  covariate    <- getCovariate(object)
+  rho          <- coef(object, unconstrained=FALSE)
+  conLin[["Xy"]][] <- .recalc_cpp(covariate[["labels"]],
+                                  covariate[["nodes"]],
+                                  covariate[["adj"]][["vectors"]],
+                                  covariate[["adj"]][["values"]],
+                                  conLin[["Xy"]],
+                                  rho)[]
 	conLin[["logLik"]] <- conLin[["logLik"]] + logLik(object)
 	return(conLin)
 }
@@ -212,10 +181,13 @@ logDet.corMLPE <- function(object, covariate = getCovariate(object), ...){
 	if( !is.null(aux <- attr(object, "logDet")) ){
 		return(aux)
 	} else {
-		aux <- attr( spectrum(object), "logDet" )
-		return(-aux)
+    rho <- coef(object, unconstrained=FALSE)
+    out <- covariate[["nodes"]]*log(rho/(1-2*rho)) + 
+               sum(log(covariate[["adj"]][["values"]] + (1-2*rho)/rho)) +
+               covariate[["observations"]]*log(1-2*rho)
+    return (0.5*out)
 	}
 }
 
-MLPEtrans <- function(x) log( (2 * x)/(1 - 2 * x) )
-rMLPEtrans <- function(z) exp(z) / ((1 + exp(z))*2)
+.MLPEtrans <- function(x) log((2 * x)/(1 - 2 * x))
+.rMLPEtrans <- function(z) exp(z)/((1 + exp(z))*2)
