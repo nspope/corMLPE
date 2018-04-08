@@ -10,7 +10,7 @@
 #' @param distances optional; list of distance matrices (one for each set), or a single distance matrix if sets==1; if absent, locations are simulated from a 2d uniform distribution
 #' @param seed random seed used to simulate data
 #' @export
-simulate.IBD.corMLPE <- function (sets = 1, 
+simulate_IBD_corMLPE <- function (sets = 1, 
                                   elements = rep(10, sets), 
                                   intercept = 0, 
                                   slope = 0.5, 
