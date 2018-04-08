@@ -1,3 +1,90 @@
+#' Simulate data from an isolation-by-distance model with MLPE correlation structure
+#'
+#' @param sets number of distinct sets (e.g. species) containing elements that are compared
+#' @param elements vector, number of elements (e.g. populations, individuals) in each set
+#' @param intercept intercept of regression line
+#' @param slope slope of regression line
+#' @param random_effects variance-covariance matrix for random intercepts/slopes per set; ignored if sets==1
+#' @param correlation parameter of MLPE correlation structure; between 0 and 0.5
+#' @param residual_sd standard deviation of (correlated) errors
+#' @param distances optional; list of distance matrices (one for each set), or a single distance matrix if sets==1; if absent, locations are simulated from a 2d uniform distribution
+#' @param seed random seed used to simulate data
+#' @export
+simulate.IBD.corMLPE <- function (sets = 1, 
+                                  elements = rep(10, sets), 
+                                  intercept = 0, 
+                                  slope = 0.5, 
+                                  random_effects = diag(2), 
+                                  correlation = 0.25, 
+                                  residual_sd = 1, 
+                                  distances = NULL, 
+                                  seed = 1)
+{
+  set.seed(seed)
+
+  if (sets < 2)
+    random_effects <- diag(2)*0
+  else
+    random_effects <- t(chol(random_effects[1:2,1:2]))
+
+  if (correlation <= 0 | correlation >= 0.5)
+    stop ("0 < rho < 0.5")
+
+  mlpe_var  <- correlation * residual_sd^2 
+  error_var <- residual_sd^2 - 2*mlpe_var
+
+	y         <- list()
+	covariate <- list()
+	x         <- list()
+	set       <- list()
+
+  rs <- random_effects %*% rbind(rnorm(sets),rnorm(sets))
+
+  sim.dist  <- is.null(distances)
+  if (sim.dist)
+    distances <- list()
+  else if (class(distances)=="dist" & sets==1)
+    distances <- list(distances)
+  else if (class(distances)!="list")
+    stop("Distance matrices must be supplied as a list, for multiple sets")
+
+  for (i in 1:sets)
+  {
+    if (sim.dist)
+      distances[[i]] <- dist(cbind(runif(elements[i]), runif(elements[i])))
+		dd     <- as.vector(distances[[i]])
+		labels <- combn(1:elements[i], 2)
+    mlpes  <- rnorm(elements[i], 0, sqrt(mlpe_var))
+    mlpes  <- c(apply(labels, 2, function(x) sum(mlpes[x])))
+    raw    <- rnorm(ncol(labels), 0, sqrt(error_var))
+    y[[i]] <- dd*(slope + rs[2,i]) + intercept + rs[1,i] + mlpes + raw
+
+		covariate[[i]] <- data.frame(t(labels))
+		set[[i]]       <- rep(i, ncol(labels))
+		x[[i]]         <- dd
+  }
+
+	y         <- unlist(y)
+	covariate <- Reduce(rbind, covariate)
+	set       <- unlist(set)
+	x         <- unlist(x)
+	out       <- data.frame(y=y,
+                          pop1=paste(set,covariate[,1],sep=":"),
+                          pop2=paste(set,covariate[,2],sep=":"),
+                          set=set,
+                          x=x,
+                          stringsAsFactors=FALSE)
+  attr(out, "intercept")   <- intercept
+	attr(out, "slope")       <- slope
+	attr(out, "correlation") <- correlation
+	attr(out, "residual_sd") <- residual_sd
+	attr(out, "distances")   <- distances
+	attr(out, "random_effects") <- random_effects%*%t(random_effects)
+  attr(out, "random_effects_values") <- rs
+  attr(out, "seed")        <- seed
+	out
+}
+
 genTestData <- function(M = 20, lambda = 10, beta = 0.5, rho = 0.25, sigma = 2, tau = 1, omega = 1, seed = 101){
 	## function to generate a testing set, to see if model works (NOT to see if model gives biologically meaningful anwsers)
 	set.seed(seed)

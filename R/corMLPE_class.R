@@ -3,7 +3,9 @@
 #' @param value Starting value for the correlation parameter
 #' @param form A formula including two variables that give the unordered pair of elements associated with each observation, and optionally a grouping factor that indicates the set to which the elements belong. See 'Details'.
 #' @param fixed Optional. Logical, fit model with the starting value for the correlation parameter fixed
-#' @details "Maximum likelihood population effects" (MLPE) is a correlation structure for dyadic, symmetric relational data: where each observation is a measurement for an unordered pair of elements from a set. For two (different) elements $i,j$, let \eqn{E[y_{i,j}]} be the expectation of the response variable (perhaps conditional on some random effects), and \deqn{y_{i,j} = E[y_{i,j}] + \alpha_{i} + \alpha_{j} + \epsilon_{i,j},} where \eqn{\alpha} are associated with unique elements of the set and are i.i.d zero-mean Gaussian random variables with standard deviation \eqn{\tau}; and \eqn{\epsilon} are i.i.d Gaussian errors with standard deviation \eqn{\sigma}. Marginally (after integrating out \eqn{\alpha}), the covariance between two observations \eqn{y_{i,j}} and \eqn{y_{k,l}} is \deqn{cov(y_{i,j}, y_{k,l}) = .} The corresponding correlation structure has a single parameter, \eqn{\rho = .} which is constrained to lie between 0 and 0.5.
+#' @details "Maximum likelihood population effects" (MLPE) is a correlation structure for dyadic, symmetric relational data: where each observation is a measurement for an unordered pair of elements from a set. For two (different) elements $i,j$, let \eqn{E[y_{i,j}]} be the expectation of the response variable (perhaps conditional on some random effects), and \deqn{y_{i,j} = E[y_{i,j}] + \alpha_{i} + \alpha_{j} + \epsilon_{i,j},} where \eqn{\alpha} are associated with unique elements of the set and are i.i.d zero-mean Gaussian random variables with standard deviation \eqn{\tau}; and \eqn{\epsilon} are i.i.d Gaussian errors with standard deviation \eqn{\sigma}. Marginally (after integrating out \eqn{\alpha}), the covariance between two observations \eqn{y_{i,j}} and \eqn{y_{k,l}} is \deqn{cov(y_{i,j}, y_{k,l}) = \tau^2 (\delta(i,k) + \delta(j,l))} where the function \eqn{\delta} evaluates to 1 when its arguments are equal and zero otherwise, and we order the indices so that \eqn{i < j, k < l} for convenience. 
+#' 
+#' The marginal variance is \eqn{var(y_{i,j}) = 2\tau^2 + \sigma^2}. The corresponding correlation structure has a single parameter, \eqn{\rho = \tau^2 / (2\tau^2 + \sigma^2)} which is constrained to lie between 0 and 0.5.
 #'
 #' The "form" argument of a corMLPE object must contain two variables that indicate the pair of elements associated with each observation, and can optionally contain a grouping factor that indicates the set to which the elements belong. Elements from different sets are treated as distinct even if they have the same label, and thus there is always a zero correlation between measurements across different sets. 
 #'
@@ -11,7 +13,8 @@
 #'
 #' It is important to note that this correlation structure does not directly incorporate a (dis)similarity metric (which could instead be included as a covariate in the regression model), but instead tries to account for the dependence between pairwise measurements taken between the same objects.
 #'
-#' @references Clarke et al. 2003 ... TODO
+#' @references 
+#' Clarke et al. 2002. Confidence limits for regression relationships between distance matrices: estimating gene flow with distance. Journal of Agricultural, Biological, and Environmental Statistics 7: 361-372.
 #' @examples #placeholder ... TODO
 #' @export
 corMLPE <- function(value = 0.1, form = ~1, fixed = FALSE){
