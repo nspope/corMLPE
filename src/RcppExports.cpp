@@ -6,6 +6,46 @@
 
 using namespace Rcpp;
 
+// factor_cov
+Rcpp::List factor_cov(const arma::umat& labels, const arma::mat& L, const arma::mat& K);
+RcppExport SEXP _corMLPE_factor_cov(SEXP labelsSEXP, SEXP LSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::umat& >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type K(KSEXP);
+    rcpp_result_gen = Rcpp::wrap(factor_cov(labels, L, K));
+    return rcpp_result_gen;
+END_RCPP
+}
+// recalc_cov
+arma::mat recalc_cov(const arma::umat& labels, const arma::mat& L, const arma::mat& M, const arma::vec& stddev, arma::mat input);
+RcppExport SEXP _corMLPE_recalc_cov(SEXP labelsSEXP, SEXP LSEXP, SEXP MSEXP, SEXP stddevSEXP, SEXP inputSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::umat& >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type stddev(stddevSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type input(inputSEXP);
+    rcpp_result_gen = Rcpp::wrap(recalc_cov(labels, L, M, stddev, input));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getCovariate_cov
+arma::mat getCovariate_cov(const arma::umat& labels, const arma::uword nodes);
+RcppExport SEXP _corMLPE_getCovariate_cov(SEXP labelsSEXP, SEXP nodesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::umat& >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type nodes(nodesSEXP);
+    rcpp_result_gen = Rcpp::wrap(getCovariate_cov(labels, nodes));
+    return rcpp_result_gen;
+END_RCPP
+}
 // recalc
 arma::mat recalc(const arma::umat& labels, const arma::uword nodes, const arma::mat& P, const arma::vec& D, arma::mat input, const double rho);
 RcppExport SEXP _corMLPE_recalc(SEXP labelsSEXP, SEXP nodesSEXP, SEXP PSEXP, SEXP DSEXP, SEXP inputSEXP, SEXP rhoSEXP) {
@@ -36,6 +76,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_corMLPE_factor_cov", (DL_FUNC) &_corMLPE_factor_cov, 3},
+    {"_corMLPE_recalc_cov", (DL_FUNC) &_corMLPE_recalc_cov, 5},
+    {"_corMLPE_getCovariate_cov", (DL_FUNC) &_corMLPE_getCovariate_cov, 2},
     {"_corMLPE_recalc", (DL_FUNC) &_corMLPE_recalc, 6},
     {"_corMLPE_adjacency", (DL_FUNC) &_corMLPE_adjacency, 2},
     {NULL, NULL, 0}

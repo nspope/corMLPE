@@ -128,6 +128,7 @@ coef.corMLPE <- function (object, unconstrained = TRUE, ...) {
 		stop("cannot change the length of the parameter of a \"corMLPE\" object")
 	}
 	object[]               <- value
+  attr(object, "logDet") <- NULL
 	attr(object, "logDet") <- logDet(object)
 	return(object)
 }
@@ -152,8 +153,9 @@ corMatrix.corMLPE <- function(object, full=FALSE, ...){
   Zt         <- sparseMatrix(i=i, j=j, x=1)
   corr       <- t(Zt) %*% Zt * rho
   diag(corr) <- 1
+  #corr       <- as(corr, "dgCMatrix_corMLPE") #TODO: see class definition below
 
-  if (full)
+  if (full || length(unique(covariate[["groups"]])) == 1)
     return (corr)
   else
   {
@@ -194,3 +196,18 @@ logDet.corMLPE <- function(object, covariate = getCovariate(object), ...){
 
 .MLPEtrans <- function(x) log((2 * x)/(1 - 2 * x))
 .rMLPEtrans <- function(z) exp(z)/((1 + exp(z))*2)
+
+
+#-------- for mgcv::gamm
+
+#TODO: better to create a new class that inherits from dgCMatrix
+#      so as not to f*** up other methods that rely on is.matrix(dgCMatrix) == FALSE
+#setClass("dgCMatrix_corMLPE", contains="dgCMatrix")
+
+#' @export
+is.matrix.dgCMatrix <- function(object, ...) TRUE
+#above is needed to allow mgcv:::formXtViX to work
+
+#' @export
+is.numeric.dgCMatrix <- function(object, ...) TRUE 
+#above is needed to allow mgcv:::formXtViX to work
