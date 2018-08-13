@@ -144,7 +144,7 @@ corFactor.corMLPE <- function(object, ...){
 }
 
 #' @export
-corMatrix.corMLPE <- function(object, full=FALSE, ...){
+corMatrix.corMLPE <- function(object, full=FALSE, gammCompatible=TRUE, ...){
   # TODO: this wouldn't return the correct matrix if self-observations are allowed
   covariate  <- getCovariate(object)
   rho        <- coef(object, unconstrained=FALSE)
@@ -153,7 +153,8 @@ corMatrix.corMLPE <- function(object, full=FALSE, ...){
   Zt         <- sparseMatrix(i=i, j=j, x=1)
   corr       <- t(Zt) %*% Zt * rho
   diag(corr) <- 1
-  #corr       <- as(corr, "dgCMatrix_corMLPE") #TODO: see class definition below
+  if (gammCompatible)
+    corr     <- as(corr, "dgCMatrix_corMLPE") #TODO: see class definition below
 
   if (full || length(unique(covariate[["groups"]])) == 1)
     return (corr)
@@ -161,8 +162,14 @@ corMatrix.corMLPE <- function(object, full=FALSE, ...){
   {
     corrl <- list()
     groups <- covariate[["groups"]]
+    
+    # coerce to matrix primitive to allow mgcv::gamm to work.
+    # the downside is massive slowdown for large datasets.
     for (gr in unique(groups))
-      corrl[[gr]] <- corr[groups==gr,groups==gr]
+      if (gammCompatible)
+        corrl[[gr]] <- as.matrix(corr[groups==gr,groups==gr])
+      else
+        corrl[[gr]] <- corr[groups==gr,groups==gr]
     return (corrl)
   }
 }
@@ -202,12 +209,44 @@ logDet.corMLPE <- function(object, covariate = getCovariate(object), ...){
 
 #TODO: better to create a new class that inherits from dgCMatrix
 #      so as not to f*** up other methods that rely on is.matrix(dgCMatrix) == FALSE
-#setClass("dgCMatrix_corMLPE", contains="dgCMatrix")
+setClass("dgCMatrix_corMLPE", contains="dgCMatrix")
 
 #' @export
-is.matrix.dgCMatrix <- function(object, ...) TRUE
+is.matrix.dgCMatrix_corMLPE <- function(object, ...) TRUE
 #above is needed to allow mgcv:::formXtViX to work
 
 #' @export
-is.numeric.dgCMatrix <- function(object, ...) TRUE 
+is.numeric.dgCMatrix_corMLPE <- function(object, ...) TRUE 
 #above is needed to allow mgcv:::formXtViX to work
+
+#' @export
+setMethod("t", signature(x = "dgCMatrix_corMLPE"),
+              function(x) 
+                as(.Call("Csparse_transpose", x, FALSE, PACKAGE="Matrix"), "dgCMatrix_corMLPE")
+              ,
+              valueClass = "dgCMatrix_corMLPE")
+#needed to retain class during transpose
+
+#' @export
+setMethod("[", signature(x = "dgCMatrix_corMLPE", i = "index", j = "missing",
+                         drop = "logical"),
+          function (x, i,j, ..., drop) {
+            cld <- getClassDef(class(x))
+            na <- nargs()
+            x <- if(na == 4) as(x, "dgCMatrix")[i, , drop=drop]
+              else if(na == 3) as(x, "dgCMatrix")[i, drop=drop]
+              else ## should not happen
+                stop("Matrix-internal error in <sparseM>[i,,d]; please report")
+            as(x, "dgCMatrix_corMLPE")
+          })
+#needed to retain class during row-subset
+
+#' @export
+setMethod("[", signature(x = "dgCMatrix_corMLPE", i = "missing", j = "index",
+                         drop = "logical"),
+          function (x,i,j, ..., drop) {
+            cld <- getClassDef(class(x))
+            x <- as(x, "dgCMatrix")[, j, drop=drop]
+            as(x, "dgCMatrix_corMLPE")
+          })
+#needed to retain class during col-subset
