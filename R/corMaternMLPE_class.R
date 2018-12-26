@@ -128,8 +128,9 @@ getCovariate.corMaternMLPE <- function(object, data, ...)
         stop("Inconsistent dimensions and/or missing labels in distance matrices supplied to \"corMaternMLPE\" object.\nEnsure that row/column names of distance matrices match the labels of items being compared.")
 
       # order appropriately (e.g. order by unique_labels)
-      distances <- distances[match(rownames(distances), unique_labels),
-                             match(colnames(distances), unique_labels)]
+      #TODO: CHECK THIS!
+      distances <- distances[match(unique_labels, rownames(distances)),
+                             match(unique_labels, colnames(distances))]
 
       if (any(is.infinite(distances)) || any(is.nan(distances)) || any(distances < 0))
         stop("Negative, missing, or non-finite distances supplied to \"corMaternMLPE\" object")

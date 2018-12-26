@@ -137,6 +137,7 @@ getCovariate.corNMLPE <- function(object, data, ...)
         stop("Missing names in cluster ids supplied to \"corNMLPE\" object")
 
       unique_clusters <- unique(clusters)
+      clusters <- clusters[match(unique_labels, names(clusters))] #ensure that clusters vector is in same order as "unique labels"
       clusters <- match(clusters, unique_clusters)-1
 
       # Adjacency matrix, among other things that can be precomputed
@@ -152,8 +153,9 @@ getCovariate.corNMLPE <- function(object, data, ...)
         stop("Inconsistent dimensions and/or missing clusters in distance matrices supplied to \"corNMLPE\" object.\nEnsure that row/column names of distance matrices match the labels of clusters being compared.")
 
       # order appropriately (e.g. order by unique_clusters)
-      distances <- distances[match(rownames(distances), unique_clusters),
-                             match(colnames(distances), unique_clusters)]
+      #TODO: CHECK THIS!
+      distances <- distances[match(unique_clusters, rownames(distances)),
+                             match(unique_clusters, colnames(distances))]
 
       if (any(is.infinite(distances)) || any(is.nan(distances)) || any(distances < 0))
         stop("Negative, missing, or non-finite distances supplied to \"corNMLPE\" object")
