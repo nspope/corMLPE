@@ -145,7 +145,11 @@ corFactor.corMLPE <- function(object, ...){
 
 #' @export
 corMatrix.corMLPE <- function(object, full=FALSE, gammCompatible=TRUE, ...){
-  # TODO: this wouldn't return the correct matrix if self-observations are allowed
+
+  # TODO: this does not return the correct matrix if self-observations are allowed.
+  # In any case I'm not sure self comparisons make sense under this model, so have
+  # prohibited.
+
   covariate  <- getCovariate(object)
   rho        <- coef(object, unconstrained=FALSE)
   i          <- as.vector(covariate[["labels"]])+1
@@ -154,7 +158,7 @@ corMatrix.corMLPE <- function(object, full=FALSE, gammCompatible=TRUE, ...){
   corr       <- t(Zt) %*% Zt * rho
   diag(corr) <- 1
   if (gammCompatible)
-    corr     <- as(corr, "dgCMatrix_corMLPE") #TODO: see class definition below
+    corr     <- as(corr, "dgCMatrix_corMLPE") # see class definition below
 
   if (full || length(unique(covariate[["groups"]])) == 1)
     return (corr)
@@ -163,8 +167,8 @@ corMatrix.corMLPE <- function(object, full=FALSE, gammCompatible=TRUE, ...){
     corrl <- list()
     groups <- covariate[["groups"]]
     
-    # coerce to matrix primitive to allow mgcv::gamm to work.
-    # the downside is massive slowdown for large datasets.
+    # Coerce to dense matrix primitive to allow mgcv::gamm to work.
+    # The downside is a massive slowdown for large datasets.
     for (gr in unique(groups))
       if (gammCompatible)
         corrl[[gr]] <- as.matrix(corr[groups==gr,groups==gr])
@@ -205,19 +209,25 @@ logDet.corMLPE <- function(object, covariate = getCovariate(object), ...){
 .rMLPEtrans <- function(z) exp(z)/((1 + exp(z))*2)
 
 
-#-------- for mgcv::gamm
+# For mgcv::gamm,
+# create a new class that inherits from dgCMatrix, e.g. essentially a dummy class,
+# and overload a few methods needed for the code to work with gamm.
+# If no grouping factor is included, the sparse matrix is maintained throughout
+# the fitting done in gamm, with all the computational benefits that implies.
+# If a grouping factor is included, gamm coerces to a dense matrix primitive.
+# In this latter case the models will fit but will fart out if the dataset is
+# too large. Nothing to be done about it without modifying mgcv source.
 
-#TODO: better to create a new class that inherits from dgCMatrix
-#      so as not to f*** up other methods that rely on is.matrix(dgCMatrix) == FALSE
+# so as not to f*** up other methods that rely on is.matrix(dgCMatrix) == FALSE
 setClass("dgCMatrix_corMLPE", contains="dgCMatrix")
 
 #' @export
 is.matrix.dgCMatrix_corMLPE <- function(object, ...) TRUE
-#above is needed to allow mgcv:::formXtViX to work
+#needed to allow mgcv:::formXtViX to work
 
 #' @export
 is.numeric.dgCMatrix_corMLPE <- function(object, ...) TRUE 
-#above is needed to allow mgcv:::formXtViX to work
+#needed to allow mgcv:::formXtViX to work
 
 #' @export
 setMethod("t", signature(x = "dgCMatrix_corMLPE"),
@@ -225,7 +235,7 @@ setMethod("t", signature(x = "dgCMatrix_corMLPE"),
                 as(.Call("Csparse_transpose", x, FALSE, PACKAGE="Matrix"), "dgCMatrix_corMLPE")
               ,
               valueClass = "dgCMatrix_corMLPE")
-#needed to retain class during transpose
+#needed to retain class during transpose, for mgcv:::extract.lme.cov2 to work
 
 #' @export
 setMethod("[", signature(x = "dgCMatrix_corMLPE", i = "index", j = "missing",

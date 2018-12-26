@@ -21,3 +21,23 @@
     .Call('_corMLPE_adjacency', PACKAGE = 'corMLPE', labels, nodes)
 }
 
+.linear_index_NMLPE_cpp <- function(indices, dim) {
+    .Call('_corMLPE_linear_index', PACKAGE = 'corMLPE', indices, dim)
+}
+
+.adjacency_NMLPE_cpp <- function(label, cluster) {
+    .Call('_corMLPE_adjacency_NMLPE', PACKAGE = 'corMLPE', label, cluster)
+}
+
+.change_basis_NMLPE_cpp <- function(adj_0, adj_1, adj_2, adj_3, E_0, E_1, e_2, e_3, Linv) {
+    .Call('_corMLPE_change_basis_NMLPE', PACKAGE = 'corMLPE', adj_0, adj_1, adj_2, adj_3, E_0, E_1, e_2, e_3, Linv)
+}
+
+.factor_cov_NMLPE_cpp <- function(labels, comparisons, L, K) {
+    .Call('_corMLPE_factor_cov_NMLPE', PACKAGE = 'corMLPE', labels, comparisons, L, K)
+}
+
+.recalc_cov_NMLPE_cpp <- function(labels, comparisons, Linv, Minv, stddev, input) {
+    .Call('_corMLPE_recalc_cov_NMLPE', PACKAGE = 'corMLPE', labels, comparisons, Linv, Minv, stddev, input)
+}
+

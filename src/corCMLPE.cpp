@@ -9,7 +9,11 @@ Rcpp::List factor_cov (const arma::umat& labels,
                        const arma::mat&  K)
 {
   // DESCRIPTION
+  //   Calculates necessary pieces of the square root factor ... at each update ...
   // INPUTS
+  //   labels : adjacency list ...
+  //   L : Cholesky factor of adjacency matrix implied by labels
+  //   K : covariance matrix ...
   // RETURNS
 
   arma::uword n_obs = labels.n_cols, // number of observations
