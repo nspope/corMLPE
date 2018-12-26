@@ -113,7 +113,9 @@ getCovariate.corNMLPE2 <- function(object, data, ...)
       if (!all(unique_labels %in% names(clusters)) || !all(names(clusters) %in% unique_labels))
         stop("Missing names in cluster ids supplied to \"corNMLPE2\" object")
 
+      browser()
       unique_clusters <- unique(clusters)
+      clusters <- clusters[match(unique_labels, names(clusters))] #ensure that clusters vector is in same order as "unique labels"
       clusters <- match(clusters, unique_clusters)-1
 
       # Adjacency matrix, among other things that can be precomputed
