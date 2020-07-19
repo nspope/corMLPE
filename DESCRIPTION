@@ -1,6 +1,6 @@
 Package: corMLPE
 Title: A correlation structure for symmetric relational data 
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: person("Nathaniel", "Pope", email = "nspope@utexas.edu", role = c("aut", "cre"))
 Description: This package implements a correlation structure for symmetric relational data (e.g. pairwise distances, dissimilarities) that interfaces with the nlme package (and anything else that can use a nlme-like correlation structure). 
 Imports:
@@ -18,4 +18,4 @@ LinkingTo:
 License: GPL
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.0

@@ -1,3 +1,25 @@
+#' Simulate data from a fitted corMLPE model
+#'
+#' @param model fitted model of class 'gls' with corMLPE correlation structure
+#' @param n number of simulations
+#' @param seed random seed
+#' @export
+simulate_corMLPE_residuals <- function (model, n = 1, seed = NULL)
+{
+  if(!is.null(seed))
+    set.seed(seed)
+
+  stopifnot(class(model)[1]=="gls" & class(model$modelStruct$corStruct)[1]=="corMLPE")
+  stopifnot(n > 0)
+
+  covariate <- getCovariate.corMLPE(model$modelStruct$corStruct)
+  rho <- coef.corMLPE(model$modelStruct$corStruct, unconstrained = FALSE)
+  out <- matrix(rnorm(covariate$observations*n, 0, sigma(model)), covariate$observations, n)
+  .recalc_inverse_cpp(covariate[["labels"]], covariate[["nodes"]],
+                        covariate[["adj"]][["vectors"]], covariate[["adj"]][["values"]],
+                        out, rho)[]
+}
+
 #' Simulate data from an isolation-by-distance model with MLPE correlation structure
 #'
 #' @param sets number of distinct sets (e.g. species) containing elements that are compared

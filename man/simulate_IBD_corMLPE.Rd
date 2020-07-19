@@ -4,9 +4,17 @@
 \alias{simulate_IBD_corMLPE}
 \title{Simulate data from an isolation-by-distance model with MLPE correlation structure}
 \usage{
-simulate_IBD_corMLPE(sets = 1, elements = rep(10, sets), intercept = 0,
-  slope = 0.5, random_effects = diag(2), correlation = 0.25,
-  residual_sd = 1, distances = NULL, seed = 1)
+simulate_IBD_corMLPE(
+  sets = 1,
+  elements = rep(10, sets),
+  intercept = 0,
+  slope = 0.5,
+  random_effects = diag(2),
+  correlation = 0.25,
+  residual_sd = 1,
+  distances = NULL,
+  seed = 1
+)
 }
 \arguments{
 \item{sets}{number of distinct sets (e.g. species) containing elements that are compared}

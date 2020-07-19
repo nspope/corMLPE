@@ -62,6 +62,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// recalc_inverse
+arma::mat recalc_inverse(const arma::umat& labels, const arma::uword nodes, const arma::mat& P, const arma::vec& D, arma::mat input, const double rho);
+RcppExport SEXP _corMLPE_recalc_inverse(SEXP labelsSEXP, SEXP nodesSEXP, SEXP PSEXP, SEXP DSEXP, SEXP inputSEXP, SEXP rhoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::umat& >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type D(DSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type input(inputSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    rcpp_result_gen = Rcpp::wrap(recalc_inverse(labels, nodes, P, D, input, rho));
+    return rcpp_result_gen;
+END_RCPP
+}
 // adjacency
 arma::mat adjacency(const arma::umat& labels, const arma::uword nodes);
 RcppExport SEXP _corMLPE_adjacency(SEXP labelsSEXP, SEXP nodesSEXP) {
@@ -153,6 +169,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_corMLPE_recalc_cov", (DL_FUNC) &_corMLPE_recalc_cov, 5},
     {"_corMLPE_getCovariate_cov", (DL_FUNC) &_corMLPE_getCovariate_cov, 2},
     {"_corMLPE_recalc", (DL_FUNC) &_corMLPE_recalc, 6},
+    {"_corMLPE_recalc_inverse", (DL_FUNC) &_corMLPE_recalc_inverse, 6},
     {"_corMLPE_adjacency", (DL_FUNC) &_corMLPE_adjacency, 2},
     {"_corMLPE_linear_index", (DL_FUNC) &_corMLPE_linear_index, 2},
     {"_corMLPE_adjacency_NMLPE", (DL_FUNC) &_corMLPE_adjacency_NMLPE, 2},

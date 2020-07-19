@@ -17,6 +17,10 @@
     .Call('_corMLPE_recalc', PACKAGE = 'corMLPE', labels, nodes, P, D, input, rho)
 }
 
+.recalc_inverse_cpp <- function(labels, nodes, P, D, input, rho) {
+    .Call('_corMLPE_recalc_inverse', PACKAGE = 'corMLPE', labels, nodes, P, D, input, rho)
+}
+
 .getCovariate_cpp <- function(labels, nodes) {
     .Call('_corMLPE_adjacency', PACKAGE = 'corMLPE', labels, nodes)
 }
