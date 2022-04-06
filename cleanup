@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -f config.* src/Makevars
+rm -r autom4te.cache
